@@ -9,11 +9,11 @@
 #include "User.h"
 #include <algorithm>
 
-class CPerform : public CModule {
+class CAntiPerform : public CModule {
 public:
-	MODCONSTRUCTOR(CPerform) {}
+	MODCONSTRUCTOR(CAntiPerform) {}
 
-	virtual ~CPerform() {}
+	virtual ~CAntiPerform() {}
 
 	CString ParsePerform(const CString& sArg) const {
 		CString sPerf = sArg;
@@ -36,7 +36,7 @@ public:
 	}
 
 	virtual bool OnLoad(const CString& sArgs, CString& sMessage) {
-		GetNV("Perform").Split("\n", m_vPerform, false);
+		GetNV("Antiperform").Split("\n", m_vPerform, false);
 
 		return true;
 	}
@@ -76,8 +76,8 @@ public:
 			}
 			PutModule(" -- End of List");
 		} else if (sCmdName == "execute") {
-			OnIRCConnected();
-			PutModule("perform commands sent");
+			OnClientDisconnect();
+			PutModule("antiperform commands sent");
 		} else if (sCmdName == "swap") {
 			u_int iNumA = sCommand.Token(1).ToUInt();
 			u_int iNumB = sCommand.Token(2).ToUInt();
@@ -94,23 +94,23 @@ public:
 		}
 	}
 
-	virtual void OnIRCConnected() {
+	virtual void OnClientDisconnect() {
 		for (VCString::const_iterator it = m_vPerform.begin(); it != m_vPerform.end(); ++it) {
 			PutIRC(GetUser()->ExpandString(*it));
 		}
 	}
 
-	virtual CString GetWebMenuTitle() { return "Perform"; }
+	virtual CString GetWebMenuTitle() { return "Antiperform"; }
 
 	virtual bool OnWebRequest(CWebSock& WebSock, const CString& sPageName, CTemplate& Tmpl) {
 		if (sPageName != "index") {
-			// only accept requests to /mods/perform/
+			// only accept requests to /mods/antiperform/
 			return false;
 		}
 
 		if (WebSock.IsPost()) {
 			VCString vsPerf;
-			WebSock.GetRawParam("perform", true).Split("\n", vsPerf, false);
+			WebSock.GetRawParam("antiperform", true).Split("\n", vsPerf, false);
 			m_vPerform.clear();
 
 			for (VCString::const_iterator it = vsPerf.begin(); it != vsPerf.end(); ++it)
@@ -121,7 +121,7 @@ public:
 
 		for (VCString::const_iterator it = m_vPerform.begin(); it != m_vPerform.end(); ++it) {
 			CTemplate& Row = Tmpl.AddRow("PerformLoop");
-			Row["Perform"] = *it;
+			Row["Antiperform"] = *it;
 		}
 
 		return true;
@@ -134,10 +134,10 @@ private:
 		for (VCString::const_iterator it = m_vPerform.begin(); it != m_vPerform.end(); ++it) {
 			sBuffer += *it + "\n";
 		}
-		SetNV("Perform", sBuffer);
+		SetNV("Antiperform", sBuffer);
 	}
 
 	VCString m_vPerform;
 };
 
-MODULEDEFS(CPerform, "Keeps a list of commands to be executed when ZNC connects to IRC.")
+MODULEDEFS(CAntiPerform, "Keeps a list of commands to be executed when last client disconnects from ZNC.")
