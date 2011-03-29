@@ -5,10 +5,11 @@
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
  *
- * This was originally written by cycomate.
+ * This was originally written by cycomate, one line added by un1matr1x with help of psychon :)
  *
  * Autorejoin module
  * rejoin channel (after a delay) when kicked
+ * try to get an invite from ChanServ to join the Channel again
  * Usage: LoadModule = rejoin [delay]
  *
  */
@@ -18,7 +19,7 @@
 
 class CRejoinJob: public CTimer {
 public:
-	CRejoinJob(CModule* pModule, unsigned int uInterval, unsigned int uCycles, const CString&amp; sLabel, const CString&amp; sDescription)
+	CRejoinJob(CModule* pModule, unsigned int uInterval, unsigned int uCycles, const CString& sLabel, const CString& sDescription)
 	: CTimer(pModule, uInterval, uCycles, sLabel, sDescription) {
 	}
 
@@ -26,12 +27,13 @@ public:
 
 protected:
 	virtual void RunJob() {
-		CUser* user = m_pModule-&gt;GetUser();
-		CChan* pChan = user-&gt;FindChan(GetName().Token(1, true));
+		CUser* user = m_pModule->GetUser();
+		CChan* pChan = user->FindChan(GetName().Token(1, true));
 
 		if (pChan) {
-			pChan-&gt;Enable();
-			GetModule()-&gt;PutIRC("JOIN " + pChan-&gt;GetName() + " " + pChan-&gt;GetKey());
+			pChan->Enable();
+			GetModule()->PutIRC("PRIVMSG ChanServ :inviteme " + pChan->GetName());
+			GetModule()->PutIRC("JOIN " + pChan->GetName() + " " + pChan->GetKey());
 		}
 	}
 };
@@ -44,7 +46,7 @@ public:
 	MODCONSTRUCTOR(CRejoinMod) {}
 	virtual ~CRejoinMod() {}
 
-	virtual bool OnLoad(const CString&amp; sArgs, CString&amp; sErrorMsg) {
+	virtual bool OnLoad(const CString& sArgs, CString& sErrorMsg) {
 		if (sArgs.empty()) {
 			CString sDelay = GetNV("delay");
 
@@ -54,7 +56,7 @@ public:
 				delay = sDelay.ToUInt();
 		} else {
 			int i = sArgs.ToInt();
-			if ((i == 0 &amp;&amp; sArgs == "0") || i &gt; 0)
+			if ((i == 0 && sArgs == "0") || i > 0)
 				delay = i;
 			else {
 				sErrorMsg = "Illegal argument, "
@@ -66,14 +68,14 @@ public:
 		return true;
 	}
 
-	virtual void OnModCommand(const CString&amp; sCommand) {
+	virtual void OnModCommand(const CString& sCommand) {
 		CString sCmdName = sCommand.Token(0).AsLower();
 
 		if (sCmdName == "setdelay") {
 			int i;
 			i = sCommand.Token(1).ToInt();
 
-			if (i &lt; 0) {
+			if (i < 0) {
 				PutModule("Negative delays don't make any sense!");
 				return;
 			}
@@ -91,12 +93,12 @@ public:
 			else
 				PutModule("Rejoin delay disabled");
 		} else {
-			PutModule("Commands: setdelay &lt;secs&gt;, showdelay");
+			PutModule("Commands: setdelay <secs>, showdelay");
 		}
 	}
 
-	virtual void OnKick(const CNick&amp; OpNick, const CString&amp; sKickedNick, CChan&amp; pChan, const CString&amp; sMessage) {
-		if (m_pUser-&gt;GetCurNick().Equals(sKickedNick)) {
+	virtual void OnKick(const CNick& OpNick, const CString& sKickedNick, CChan& pChan, const CString& sMessage) {
+		if (m_pUser->GetCurNick().Equals(sKickedNick)) {
 			if (!delay) {
 				PutIRC("JOIN " + pChan.GetName() + " " + pChan.GetKey());
 				pChan.Enable();
@@ -108,4 +110,4 @@ public:
 	}
 };
 
-MODULEDEFS(CRejoinMod, "Autorejoin on kick")
+MODULEDEFS(CRejoinMod, "Autorejoin on kick, optimized for CS")
