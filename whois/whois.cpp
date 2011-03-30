@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010 Efreak.
+ * Copyright (C) 2004-2011  See the AUTHORS file for details.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -94,7 +95,7 @@ private:
 		CString Nickname = pUser->GetNick();
 		CString Ident = pUser->GetIdent();
 		CString Server = (!m_pUser->IsAdmin() && m_bServerName ? m_sServerName : pUser->GetIRCServer());	//if whoiser isnt an admin, and the servername is defined, use it. otherwise grab the real server name.
-		CString VHost = pUser->GetVHost();
+		CString VHost = pUser->GetBindHost();
 		CString RealName = pUser->GetRealName();
 		CString MyNick = m_pUser->GetNick();
 		bool Attached = pUser->IsUserAttached();
