@@ -24,15 +24,7 @@ public:
 	}
 
 	virtual bool OnLoad(const CString & sArgs, CString & sMessage) {
-		CString sTarget = GetNV("target");
-		if (sTarget.Equals("syslog"))
-			m_eLogMode = LOG_TO_SYSLOG;
-		else if (sTarget.Equals("both"))
-			m_eLogMode = LOG_TO_BOTH;
-		else if (sTarget.Equals("file"))
-			m_eLogMode = LOG_TO_FILE;
-		else
-			m_eLogMode = LOG_TO_FILE;
+		m_eLogMode = LOG_TO_FILE;
 
 		time_t curtime;
 		tm* timeinfo;
@@ -82,8 +74,6 @@ public:
 	}
 
 	void Log(CString sLine, int iPrio = LOG_INFO) {
-		if (m_eLogMode & LOG_TO_SYSLOG)
-			syslog(iPrio, "%s", sLine.c_str());
 
 		if (m_eLogMode & LOG_TO_FILE) {
 			time_t curtime;
@@ -121,14 +111,6 @@ public:
 				sTarget = "file";
 				sMessage = "Now only logging to file";
 				mode = LOG_TO_FILE;
-			} else if (sArg.Equals("syslog")) {
-				sTarget = "syslog";
-				sMessage = "Now only logging to syslog";
-				mode = LOG_TO_SYSLOG;
-			} else if (sArg.Equals("both")) {
-				sTarget = "both";
-				sMessage = "Now logging to file and syslog";
-				mode = LOG_TO_BOTH;
 			} else {
 				PutModule("Unknown target");
 				return;
@@ -146,28 +128,19 @@ public:
 			case LOG_TO_FILE:
 				sTarget = "file";
 				break;
-			case LOG_TO_SYSLOG:
-				sTarget = "syslog";
-				break;
-			case LOG_TO_BOTH:
-				sTarget = "both, file and syslog";
-				break;
 			}
 
 			PutModule("Logging is enabled for " + sTarget);
-			if (m_eLogMode != LOG_TO_SYSLOG)
-				PutModule("Log file will be written to [" + m_sLogFile + "]");
+			PutModule("Log file will be written to [" + m_sLogFile + "]");
 		} else
-			PutModule("Commands: show, target <file|syslog|both>");
+			PutModule("Commands: show");
 	}
 private:
 	enum LogMode {
 		LOG_TO_FILE   = 1 << 0,
-		LOG_TO_SYSLOG = 1 << 1,
-		LOG_TO_BOTH   = LOG_TO_FILE | LOG_TO_SYSLOG
 	};
 	LogMode m_eLogMode;
 	CString m_sLogFile;
 };
 
-GLOBALMODULEDEFS(CAdminLogMod, "Log ZNC events to file and/or syslog.")
+GLOBALMODULEDEFS(CAdminLogMod, "Log ZNC events to a weekly rotating file.")
