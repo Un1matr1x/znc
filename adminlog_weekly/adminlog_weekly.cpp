@@ -36,11 +36,11 @@ public:
 
 		time_t curtime;
 		tm* timeinfo;
-		char buf[23];
+		char buf[10];
 
 		time(&curtime);
 		timeinfo = localtime(&curtime);
-		strftime(buf,sizeof(buf),"%Y-%m-%d",timeinfo);
+		strftime(buf,sizeof(buf),"%Y-%U",timeinfo);
 
 		m_sLogFile = GetSavePath() + "/" + buf + "-znc.log";
 
