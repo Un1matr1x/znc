@@ -34,7 +34,15 @@ public:
 		else
 			m_eLogMode = LOG_TO_FILE;
 
-		m_sLogFile = GetSavePath() + "/znc.log";
+		time_t curtime;
+		tm* timeinfo;
+		char buf[23];
+
+		time(&curtime);
+		timeinfo = localtime(&curtime);
+		strftime(buf,sizeof(buf),"%Y-%m-%d",timeinfo);
+
+		m_sLogFile = GetSavePath() + "/" + buf + "-znc.log";
 
 		Log("Logging started. ZNC PID[" + CString(getpid()) + "] UID/GID[" + CString(getuid()) + ":" + CString(getgid()) + "]");
 		return true;
