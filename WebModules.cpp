@@ -534,7 +534,7 @@ void CWebSock::OnPageRequest(const CString& sURI) {
 
 CWebSock::EPageReqResult CWebSock::OnPageRequestInternal(const CString& sURI, CString& sPageRet) {
 	if (CZNC::Get().GetProtectWebSessions() && GetSession()->GetIP() != GetRemoteIP()) {
-		PrintErrorPage(403, "Access denied", "This session does not belong to your IP.");
+		PrintErrorPage(403, "Access denied", "sessionrider");
 		return PAGE_DONE;
 	}
 
@@ -558,7 +558,7 @@ CWebSock::EPageReqResult CWebSock::OnPageRequestInternal(const CString& sURI, CS
 	// Handle the static pages that don't require a login
 	if (sURI == "/") {
 		if(!m_bLoggedIn && GetParam("cookie_check", false).ToBool() && GetRequestCookie("SessionId").empty()) {
-			GetSession()->AddError("Your browser does not have cookies enabled for this site!");
+			GetSession()->AddError("Dein Browser braucht Cookies, back welche - JETZT!");
 		}
 		return PrintTemplate("index", sPageRet);
 	} else if (sURI == "/favicon.ico") {
@@ -568,7 +568,7 @@ CWebSock::EPageReqResult CWebSock::OnPageRequestInternal(const CString& sURI, CS
 	} else if (sURI == "/logout") {
 		GetSession()->SetUser(NULL);
 		SetLoggedIn(false);
-		Redirect("/");
+		Redirect("http://un1matr1x.de");
 
 		// We already sent a reply
 		return PAGE_DONE;
