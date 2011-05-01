@@ -1,0 +1,24 @@
+<? INC Header.tmpl ?>
+
+<form method="post" action="/mods/antiperform/">
+	<? INC _csrf_check.tmpl ?>
+	<div class="section">
+		<h3>Antiperform</h3>
+		<div class="sectionbg">
+			<div class="sectionbody">
+				<div class="subsection full">
+					<div class="inputlabel">Antiperform commands:</div>
+					<div><textarea name="antiperform" cols="70" rows="5" class="monospace"><? LOOP PerformLoop ?><? VAR Antiperform ?>
+<? ENDLOOP ?>
+</textarea></div>
+					<br /><span class="info">Commands sent to the IRC server on last User discconets from ZNC, one per line.</span>
+				</div>
+				<div class="subsection submitline">
+					<input type="submit" name="save" value="Save" />
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+<? INC Footer.tmpl ?>
